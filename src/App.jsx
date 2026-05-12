@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 const CONTACTS = [
+  { id: "ai", name: "Pawa AI", location: "Your smart money assistant", avatar: "AI", online: true, lastMsg: "How can I help you today?", time: "now", unread: 1, isAI: true },
   { id: 1, name: "Amara Diallo", location: "Lagos, NG", avatar: "AD", online: true, lastMsg: "Send me the money now", time: "2m", unread: 2 },
   { id: 2, name: "Priya Sharma", location: "Mumbai, IN", avatar: "PS", online: true, lastMsg: "Did you receive it?", time: "14m", unread: 0 },
   { id: 3, name: "Chen Wei", location: "Manila, PH", avatar: "CW", online: false, lastMsg: "Thanks for the payment", time: "1h", unread: 0 },
@@ -9,6 +10,9 @@ const CONTACTS = [
 ];
 
 const INITIAL_MESSAGES = {
+  ai: [
+    { id: 1, from: "them", text: "Hey! I'm Pawa AI, your smart money assistant. I can help you send money, check exchange rates, track your spending, and answer any questions about using Pawa. What can I do for you?", time: "now", type: "text" },
+  ],
   1: [
     { id: 1, from: "them", text: "Hey! Can you send me the 50 USDC you owe me from last week?", time: "10:30 AM", type: "text" },
     { id: 2, from: "me", text: "Of course, sending now", time: "10:31 AM", type: "text" },
@@ -38,7 +42,7 @@ const WALLET = { balance: "1,240.50", currency: "USDC", address: "0x7f3...4a2b" 
 const C = {
   bg: "#0a0a0a", surface: "#111111", surface2: "#1a1a1a", border: "#222222",
   accent: "#F5A623", accentDim: "#3a2800", text: "#f0f0f0", textSub: "#666666",
-  textMuted: "#444444", green: "#4ade80", red: "#f87171",
+  textMuted: "#444444", green: "#4ade80", red: "#f87171", purple: "#a78bfa", purpleDim: "#1e1530",
 };
 
 const s = {
@@ -74,7 +78,9 @@ const s = {
   contactRow: { display:"flex", alignItems:"center", gap:12, padding:"12px 8px", background:"transparent", border:"none", width:"100%", cursor:"pointer", borderRadius:12, textAlign:"left" },
   avatarWrap: { position:"relative", flexShrink:0 },
   avatar: { width:48, height:48, borderRadius:"50%", background:C.surface2, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, color:C.accent },
+  aiAvatar: { width:48, height:48, borderRadius:"50%", background:C.purpleDim, border:`1px solid ${C.purple}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:13, fontWeight:700, color:C.purple },
   onlineDot: { position:"absolute", bottom:2, right:2, width:10, height:10, borderRadius:"50%", background:C.green, border:`2px solid ${C.bg}` },
+  aiDot: { position:"absolute", bottom:2, right:2, width:10, height:10, borderRadius:"50%", background:C.purple, border:`2px solid ${C.bg}` },
   contactInfo: { flex:1, minWidth:0 },
   contactTop: { display:"flex", justifyContent:"space-between", marginBottom:2 },
   contactName: { fontSize:15, fontWeight:600, color:C.text },
@@ -82,12 +88,14 @@ const s = {
   contactBottom: { display:"flex", justifyContent:"space-between", alignItems:"center" },
   contactPreview: { fontSize:13, color:C.textSub, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:180 },
   unreadBadge: { background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:11, fontWeight:700 },
+  aiUnreadBadge: { background:C.purple, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:11, fontWeight:700 },
   contactLocation: { fontSize:11, color:C.textMuted, marginTop:2 },
   bottomNav: { display:"flex", justifyContent:"space-around", padding:"12px 0 24px", borderTop:`1px solid ${C.border}` },
   navBtn: { background:"transparent", border:"none", fontSize:22, cursor:"pointer", padding:"8px 20px" },
   chatHeader: { display:"flex", alignItems:"center", gap:10, padding:"52px 16px 12px", borderBottom:`1px solid ${C.border}` },
   backBtn: { background:"transparent", border:"none", color:C.text, fontSize:20, cursor:"pointer", padding:"4px 8px 4px 0" },
   chatHeaderAvatar: { width:36, height:36, borderRadius:"50%", background:C.surface2, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color:C.accent },
+  aiChatHeaderAvatar: { width:36, height:36, borderRadius:"50%", background:C.purpleDim, border:`1px solid ${C.purple}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:11, fontWeight:700, color:C.purple },
   chatHeaderInfo: { flex:1 },
   chatHeaderName: { fontSize:15, fontWeight:600, color:C.text },
   chatHeaderSub: { fontSize:11, color:C.textSub },
@@ -97,7 +105,10 @@ const s = {
   bubble: { maxWidth:"72%", padding:"10px 14px", borderRadius:16, fontSize:14, lineHeight:1.4 },
   bubbleMe: { background:C.accent, color:"#000", borderBottomRightRadius:4 },
   bubbleThem: { background:C.surface2, color:C.text, borderBottomLeftRadius:4 },
+  bubbleAI: { background:C.purpleDim, color:C.text, borderBottomLeftRadius:4, border:`1px solid ${C.purple}22` },
   msgTime: { display:"block", fontSize:10, opacity:0.6, marginTop:4, textAlign:"right" },
+  typingBubble: { background:C.purpleDim, border:`1px solid ${C.purple}22`, padding:"10px 14px", borderRadius:16, borderBottomLeftRadius:4, display:"flex", gap:4, alignItems:"center" },
+  typingDot: { width:6, height:6, borderRadius:"50%", background:C.purple, animation:"pulse 1.2s ease-in-out infinite" },
   paymentBubble: { padding:"14px 18px", borderRadius:16, display:"flex", flexDirection:"column", alignItems:"center", gap:4, minWidth:140 },
   paymentMe: { background:`linear-gradient(135deg,${C.accentDim},#2a1500)`, border:`1px solid ${C.accent}44` },
   paymentThem: { background:`linear-gradient(135deg,#0a2a0a,#0f1f0f)`, border:`1px solid ${C.green}44` },
@@ -144,6 +155,27 @@ const s = {
   txnAmount: { fontSize:15, fontWeight:700 },
 };
 
+const SYSTEM_PROMPT = `You are Pawa AI, a smart money assistant built into the Pawa app - a chat-native payments app for Africa and Asia. You help users send money, understand crypto/USDC payments, check exchange rates, track spending, and answer questions about using Pawa.
+
+Keep responses short, friendly, and practical - this is a mobile chat app. Use simple language. You know the user has a wallet balance of 1,240.50 USDC on Base network. Recent transactions include sending 50 USDC to Amara in Lagos, receiving 120 USDC from Priya in Mumbai, sending 200 USDC to Kwame in Accra, and sending 30 USDC to Chen in Manila.
+
+When asked about exchange rates, give approximate real-world figures. Be conversational, warm, and helpful. Never be robotic. You care about helping people across Africa and Asia move money easily.`;
+
+async function askClaude(messages) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: messages.map(m => ({ role: m.from === "me" ? "user" : "assistant", content: m.text })).filter(m => m.content)
+    })
+  });
+  const data = await response.json();
+  return data.content?.[0]?.text || "Sorry, I couldn't process that right now.";
+}
+
 function Splash() {
   return (
     <div style={s.root}><div style={s.phone}><div style={s.splash}>
@@ -167,7 +199,7 @@ function Onboard({onDone}) {
   const next=()=>{
     if(step===1){setLoading(true);setTimeout(()=>{setLoading(false);setStep(2);},1500);}
     else if(step===2){setLoading(true);setTimeout(()=>{setLoading(false);onDone();},1800);}
-    else setStep(s=>s+1);
+    else setStep(sv=>sv+1);
   };
   return (
     <div style={s.root}><div style={s.phone}><div style={s.onboard}>
@@ -198,10 +230,13 @@ function HomeScreen({contacts,messages,tab,setTab,onContact,onWallet,wallet}) {
           const preview=last?.type==="payment"?`Sent ${last.amount} USDC`:(last?.text||c.lastMsg);
           return (
             <button key={c.id} style={s.contactRow} onClick={()=>onContact(c)}>
-              <div style={s.avatarWrap}><div style={s.avatar}>{c.avatar}</div>{c.online&&<div style={s.onlineDot}/>}</div>
+              <div style={s.avatarWrap}>
+                <div style={c.isAI?s.aiAvatar:s.avatar}>{c.avatar}</div>
+                <div style={c.isAI?s.aiDot:s.onlineDot}/>
+              </div>
               <div style={s.contactInfo}>
                 <div style={s.contactTop}><span style={s.contactName}>{c.name}</span><span style={s.contactTime}>{c.time}</span></div>
-                <div style={s.contactBottom}><span style={s.contactPreview}>{preview}</span>{c.unread>0&&<span style={s.unreadBadge}>{c.unread}</span>}</div>
+                <div style={s.contactBottom}><span style={s.contactPreview}>{preview}</span>{c.unread>0&&<span style={c.isAI?s.aiUnreadBadge:s.unreadBadge}>{c.unread}</span>}</div>
                 <div style={s.contactLocation}>{c.location}</div>
               </div>
             </button>
@@ -213,22 +248,23 @@ function HomeScreen({contacts,messages,tab,setTab,onContact,onWallet,wallet}) {
   );
 }
 
-function ChatScreen({contact,messages,onBack,inputText,setInputText,sendMessage,showSend,setShowSend,sendAmount,setSendAmount,sendPayment,sendSuccess,messagesEnd}) {
+function ChatScreen({contact,messages,onBack,inputText,setInputText,sendMessage,showSend,setShowSend,sendAmount,setSendAmount,sendPayment,sendSuccess,messagesEnd,isTyping}) {
   return (
     <div style={s.screen}>
       <div style={s.chatHeader}>
         <button style={s.backBtn} onClick={onBack}>←</button>
-        <div style={s.chatHeaderAvatar}>{contact.avatar}</div>
-        <div style={s.chatHeaderInfo}><div style={s.chatHeaderName}>{contact.name}</div><div style={s.chatHeaderSub}>{contact.location}{contact.online?" · online":""}</div></div>
-        <button style={s.sendMoneyBtn} onClick={()=>setShowSend(true)}>Send $</button>
+        <div style={contact.isAI?s.aiChatHeaderAvatar:s.chatHeaderAvatar}>{contact.avatar}</div>
+        <div style={s.chatHeaderInfo}><div style={s.chatHeaderName}>{contact.name}</div><div style={s.chatHeaderSub}>{contact.location}{contact.online&&!contact.isAI?" · online":contact.isAI?" · AI powered":""}</div></div>
+        {!contact.isAI&&<button style={s.sendMoneyBtn} onClick={()=>setShowSend(true)}>Send $</button>}
       </div>
       <div style={s.messageList}>
         {messages.map(msg=>(
           <div key={msg.id} style={{...s.msgRow,justifyContent:msg.from==="me"?"flex-end":"flex-start"}}>
-            {msg.type==="text"&&<div style={{...s.bubble,...(msg.from==="me"?s.bubbleMe:s.bubbleThem)}}>{msg.text}<span style={s.msgTime}>{msg.time}</span></div>}
+            {msg.type==="text"&&<div style={{...s.bubble,...(msg.from==="me"?s.bubbleMe:contact.isAI?s.bubbleAI:s.bubbleThem)}}>{msg.text}<span style={s.msgTime}>{msg.time}</span></div>}
             {msg.type==="payment"&&<div style={{...s.paymentBubble,...(msg.from==="me"?s.paymentMe:s.paymentThem)}}><div style={s.paymentIcon}>{msg.from==="me"?"↑":"↓"}</div><div style={s.paymentAmount}>{msg.amount} <span style={s.paymentCurrency}>{msg.currency}</span></div><div style={s.paymentLabel}>{msg.from==="me"?"Sent":"Received"} · {msg.time}</div></div>}
           </div>
         ))}
+        {isTyping&&<div style={{...s.msgRow,justifyContent:"flex-start"}}><div style={s.typingBubble}>{[0,0.2,0.4].map((d,i)=><span key={i} style={{...s.typingDot,animationDelay:`${d}s`}}/>)}</div></div>}
         <div ref={messagesEnd}/>
       </div>
       {showSend&&(
@@ -245,7 +281,7 @@ function ChatScreen({contact,messages,onBack,inputText,setInputText,sendMessage,
       )}
       <div style={s.chatInputRow}>
         <input style={s.chatInput} placeholder="Message..." value={inputText} onChange={e=>setInputText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()}/>
-        <button style={s.sendMsgBtn} onClick={()=>setShowSend(true)}>$</button>
+        {!contact.isAI&&<button style={s.sendMsgBtn} onClick={()=>setShowSend(true)}>$</button>}
         <button style={s.sendMsgBtn} onClick={sendMessage}>→</button>
       </div>
     </div>
@@ -286,16 +322,33 @@ export default function App() {
   const [sendSuccess,setSendSuccess]=useState(false);
   const [walletView,setWalletView]=useState(false);
   const [tab,setTab]=useState("chats");
+  const [isTyping,setIsTyping]=useState(false);
   const messagesEnd=useRef(null);
 
   useEffect(()=>{if(view==="splash")setTimeout(()=>setView("onboard"),2200);},[]);
-  useEffect(()=>{messagesEnd.current?.scrollIntoView({behavior:"smooth"});},[messages,activeContact]);
+  useEffect(()=>{messagesEnd.current?.scrollIntoView({behavior:"smooth"});},[messages,activeContact,isTyping]);
 
-  const sendMessage=()=>{
+  const sendMessage=async()=>{
     if(!inputText.trim())return;
-    setMessages(prev=>({...prev,[activeContact.id]:[...(prev[activeContact.id]||[]),{id:Date.now(),from:"me",text:inputText,time:"Now",type:"text"}]}));
+    const text=inputText;
+    const newMsg={id:Date.now(),from:"me",text,time:"Now",type:"text"};
+    const updatedMsgs=[...(messages[activeContact.id]||[]),newMsg];
+    setMessages(prev=>({...prev,[activeContact.id]:updatedMsgs}));
     setInputText("");
+
+    if(activeContact.isAI){
+      setIsTyping(true);
+      try {
+        const reply=await askClaude(updatedMsgs);
+        setIsTyping(false);
+        setMessages(prev=>({...prev,[activeContact.id]:[...prev[activeContact.id],{id:Date.now()+1,from:"them",text:reply,time:"Now",type:"text"}]}));
+      } catch(e) {
+        setIsTyping(false);
+        setMessages(prev=>({...prev,[activeContact.id]:[...prev[activeContact.id],{id:Date.now()+1,from:"them",text:"Sorry, I'm having trouble connecting right now. Try again in a moment.",time:"Now",type:"text"}]}));
+      }
+    }
   };
+
   const sendPayment=()=>{
     if(!sendAmount)return;
     setMessages(prev=>({...prev,[activeContact.id]:[...(prev[activeContact.id]||[]),{id:Date.now(),from:"me",amount:sendAmount,currency:"USDC",time:"Now",type:"payment",status:"sent"}]}));
@@ -303,17 +356,19 @@ export default function App() {
     setTimeout(()=>{setSendSuccess(false);setShowSend(false);setSendAmount("");},2000);
   };
 
-  if(view==="splash")return <><Splash/><style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap');@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}*{-webkit-tap-highlight-color:transparent}::-webkit-scrollbar{display:none}`}</style></>;
-  if(view==="onboard")return <><Onboard onDone={()=>setView("app")}/><style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap');@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}::-webkit-scrollbar{display:none}`}</style></>;
+  if(view==="splash")return <><Splash/><style>{css}</style></>;
+  if(view==="onboard")return <><Onboard onDone={()=>setView("app")}/><style>{css}</style></>;
 
   return (
     <>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap');*{-webkit-tap-highlight-color:transparent}::-webkit-scrollbar{display:none}`}</style>
+      <style>{css}</style>
       <div style={s.root}><div style={s.phone}>
         {!activeContact&&!walletView&&<HomeScreen contacts={CONTACTS} messages={messages} tab={tab} setTab={setTab} onContact={setActiveContact} onWallet={()=>setWalletView(true)} wallet={WALLET}/>}
-        {activeContact&&!walletView&&<ChatScreen contact={activeContact} messages={messages[activeContact.id]||[]} onBack={()=>setActiveContact(null)} inputText={inputText} setInputText={setInputText} sendMessage={sendMessage} showSend={showSend} setShowSend={setShowSend} sendAmount={sendAmount} setSendAmount={setSendAmount} sendPayment={sendPayment} sendSuccess={sendSuccess} messagesEnd={messagesEnd}/>}
+        {activeContact&&!walletView&&<ChatScreen contact={activeContact} messages={messages[activeContact.id]||[]} onBack={()=>setActiveContact(null)} inputText={inputText} setInputText={setInputText} sendMessage={sendMessage} showSend={showSend} setShowSend={setShowSend} sendAmount={sendAmount} setSendAmount={setSendAmount} sendPayment={sendPayment} sendSuccess={sendSuccess} messagesEnd={messagesEnd} isTyping={isTyping}/>}
         {walletView&&<WalletScreen wallet={WALLET} onBack={()=>setWalletView(false)}/>}
       </div></div>
     </>
   );
 }
+
+const css=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700;800&display=swap');*{-webkit-tap-highlight-color:transparent}::-webkit-scrollbar{display:none}@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}`;
