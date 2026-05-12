@@ -11,7 +11,7 @@ const CONTACTS = [
 
 const INITIAL_MESSAGES = {
   ai: [
-    { id: 1, from: "them", text: "Hey! I'm Pawa AI, your smart money assistant. I can help you send money, check exchange rates, track your spending, and answer any questions about using Pawa. What can I do for you?", time: "now", type: "text" },
+    { id: 1, from: "them", text: "Hey! I'm Pawa AI, your smart money assistant. I can help you send money, check exchange rates, track your spending, and answer any questions about Pawa. What can I do for you?", time: "now", type: "text" },
   ],
   1: [
     { id: 1, from: "them", text: "Hey! Can you send me the 50 USDC you owe me from last week?", time: "10:30 AM", type: "text" },
@@ -28,9 +28,7 @@ const INITIAL_MESSAGES = {
     { id: 1, from: "me", amount: "30", currency: "USDC", time: "Yesterday", type: "payment", status: "sent" },
     { id: 2, from: "them", text: "Thanks for the payment", time: "Yesterday", type: "text" },
   ],
-  4: [
-    { id: 1, from: "them", text: "Can you split the bill? It was $80 total", time: "8:00 AM", type: "text" },
-  ],
+  4: [{ id: 1, from: "them", text: "Can you split the bill? It was $80 total", time: "8:00 AM", type: "text" }],
   5: [
     { id: 1, from: "me", amount: "200", currency: "USDC", time: "Yesterday", type: "payment", status: "sent" },
     { id: 2, from: "them", text: "Got it, thanks!", time: "Yesterday", type: "text" },
@@ -38,6 +36,116 @@ const INITIAL_MESSAGES = {
 };
 
 const WALLET = { balance: "1,240.50", currency: "USDC", address: "0x7f3...4a2b" };
+
+// Smart response engine - no API key needed
+function getSmartReply(text) {
+  const t = text.toLowerCase();
+
+  if (t.match(/hi|hello|hey|sup|yo|good/)) {
+    const greetings = [
+      "Hey! Good to hear from you. What can I help you with today?",
+      "Hi there! Need help sending money or checking your balance?",
+      "Hey! I'm here. Ask me anything about your Pawa wallet."
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
+  }
+
+  if (t.match(/balance|how much|wallet/)) {
+    return "Your current balance is 1,240.50 USDC on Base network. That's roughly $1,240 USD. You're looking good!";
+  }
+
+  if (t.match(/naira|nigeria|ngn|ngo/)) {
+    return "Right now 1 USDC = approximately 1,580 Nigerian Naira. So if you want to send someone ₦50,000 that's about 31.6 USDC. Way cheaper than a bank transfer.";
+  }
+
+  if (t.match(/ghana|cedi|ghc/)) {
+    return "1 USDC = approximately 15.2 Ghanaian Cedi right now. Sending to Kwame in Accra? Just tap his name and hit Send.";
+  }
+
+  if (t.match(/india|rupee|inr/)) {
+    return "1 USDC = approximately 83.5 Indian Rupees right now. Priya is in Mumbai - you can send her USDC instantly and she receives it in seconds.";
+  }
+
+  if (t.match(/philippines|peso|php/)) {
+    return "1 USDC = approximately 57 Philippine Pesos right now. Sending to the Philippines through Pawa costs basically nothing compared to remittance services.";
+  }
+
+  if (t.match(/kenya|shilling|kes/)) {
+    return "1 USDC = approximately 129 Kenyan Shillings right now. Much better than M-Pesa international rates.";
+  }
+
+  if (t.match(/send|transfer|pay/)) {
+    return "Sending money on Pawa is simple. Just open a chat with the person, tap the $ button, type the amount and hit Send Now. It arrives in seconds, no fees.";
+  }
+
+  if (t.match(/fee|cost|charge|how much.*cost/)) {
+    return "Pawa uses USDC on Base network. Transaction fees are less than $0.01 - basically free. No hidden charges, no conversion fees eating your money.";
+  }
+
+  if (t.match(/fast|speed|how long|instant/)) {
+    return "Transfers on Pawa settle in under 2 seconds on Base network. Doesn't matter if you're sending to Lagos, Mumbai or Manila - same speed.";
+  }
+
+  if (t.match(/safe|secure|trust/)) {
+    return "Your money is held in USDC - a dollar-backed stablecoin. Your wallet is on Base network, one of the most secure blockchains built. No one can access it but you.";
+  }
+
+  if (t.match(/spent|spending|history|transaction|last/)) {
+    return "Here's your recent activity: You sent 50 USDC to Amara in Lagos, received 120 USDC from Priya in Mumbai, sent 200 USDC to Kwame in Accra, and 30 USDC to Chen in Manila. Total sent this week: 280 USDC.";
+  }
+
+  if (t.match(/add|deposit|top up|load/)) {
+    return "To add money to your Pawa wallet, go to the wallet screen and tap Add Money. You can fund it from a bank transfer or buy USDC directly. Takes about 2 minutes.";
+  }
+
+  if (t.match(/withdraw|cash out|take out/)) {
+    return "You can withdraw from your wallet to a local bank account or mobile money like M-Pesa or MTN Mobile Money. Tap Withdraw in your wallet screen.";
+  }
+
+  if (t.match(/usdc|crypto|blockchain|base/)) {
+    return "Pawa runs on USDC - it's always worth $1, no crypto volatility. It moves on Base network which is fast and nearly free. You don't need to know anything about crypto to use it.";
+  }
+
+  if (t.match(/amara/)) {
+    return "Amara Diallo is in Lagos, Nigeria. You've sent her 50 USDC before. Want to send her money now? Just open her chat and tap Send $.";
+  }
+
+  if (t.match(/priya/)) {
+    return "Priya Sharma is in Mumbai, India. She sent you 120 USDC earlier today. Your balance with her is looking good.";
+  }
+
+  if (t.match(/kwame/)) {
+    return "Kwame Asante is in Accra, Ghana. You sent him 200 USDC yesterday. He's currently offline but money transfers go through instantly regardless.";
+  }
+
+  if (t.match(/fatima/)) {
+    return "Fatima Al-Hassan is in Nairobi, Kenya. She wants to split a bill - her share would be $40. Want me to help you send that?";
+  }
+
+  if (t.match(/chen/)) {
+    return "Chen Wei is in Manila, Philippines. You sent him 30 USDC yesterday and he confirmed receipt.";
+  }
+
+  if (t.match(/thank|thanks|great|awesome|nice|good job|perfect/)) {
+    return "Anytime! That's what I'm here for. Anything else you need help with?";
+  }
+
+  if (t.match(/split|bill|divide/)) {
+    return "For splitting a bill, just figure out each person's share and send their amount directly in the chat. For Fatima's $80 bill that's $40 each. Want me to remind you to send it?";
+  }
+
+  if (t.match(/help|what can you|what do you/)) {
+    return "I can help you with: checking your balance, current exchange rates for Naira, Rupee, Peso, Cedi or Shilling, your spending history, how to send money, fees, security questions, or anything else about Pawa. What do you need?";
+  }
+
+  // Default responses for anything else
+  const defaults = [
+    "Good question. Pawa is built to make sending money across Africa and Asia as simple as texting. What specifically would you like to know?",
+    "I can help you with exchange rates, your balance, sending money, or transaction history. What do you need?",
+    "Tell me more about what you're trying to do and I'll point you in the right direction."
+  ];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
 
 const C = {
   bg: "#0a0a0a", surface: "#111111", surface2: "#1a1a1a", border: "#222222",
@@ -88,7 +196,7 @@ const s = {
   contactBottom: { display:"flex", justifyContent:"space-between", alignItems:"center" },
   contactPreview: { fontSize:13, color:C.textSub, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:180 },
   unreadBadge: { background:C.accent, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:11, fontWeight:700 },
-  aiUnreadBadge: { background:C.purple, color:"#000", borderRadius:10, padding:"2px 7px", fontSize:11, fontWeight:700 },
+  aiUnreadBadge: { background:C.purple, color:"#fff", borderRadius:10, padding:"2px 7px", fontSize:11, fontWeight:700 },
   contactLocation: { fontSize:11, color:C.textMuted, marginTop:2 },
   bottomNav: { display:"flex", justifyContent:"space-around", padding:"12px 0 24px", borderTop:`1px solid ${C.border}` },
   navBtn: { background:"transparent", border:"none", fontSize:22, cursor:"pointer", padding:"8px 20px" },
@@ -154,27 +262,6 @@ const s = {
   txnTime: { fontSize:12, color:C.textSub },
   txnAmount: { fontSize:15, fontWeight:700 },
 };
-
-const SYSTEM_PROMPT = `You are Pawa AI, a smart money assistant built into the Pawa app - a chat-native payments app for Africa and Asia. You help users send money, understand crypto/USDC payments, check exchange rates, track spending, and answer questions about using Pawa.
-
-Keep responses short, friendly, and practical - this is a mobile chat app. Use simple language. You know the user has a wallet balance of 1,240.50 USDC on Base network. Recent transactions include sending 50 USDC to Amara in Lagos, receiving 120 USDC from Priya in Mumbai, sending 200 USDC to Kwame in Accra, and sending 30 USDC to Chen in Manila.
-
-When asked about exchange rates, give approximate real-world figures. Be conversational, warm, and helpful. Never be robotic. You care about helping people across Africa and Asia move money easily.`;
-
-async function askClaude(messages) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      system: SYSTEM_PROMPT,
-      messages: messages.map(m => ({ role: m.from === "me" ? "user" : "assistant", content: m.text })).filter(m => m.content)
-    })
-  });
-  const data = await response.json();
-  return data.content?.[0]?.text || "Sorry, I couldn't process that right now.";
-}
 
 function Splash() {
   return (
@@ -328,24 +415,21 @@ export default function App() {
   useEffect(()=>{if(view==="splash")setTimeout(()=>setView("onboard"),2200);},[]);
   useEffect(()=>{messagesEnd.current?.scrollIntoView({behavior:"smooth"});},[messages,activeContact,isTyping]);
 
-  const sendMessage=async()=>{
+  const sendMessage=()=>{
     if(!inputText.trim())return;
     const text=inputText;
     const newMsg={id:Date.now(),from:"me",text,time:"Now",type:"text"};
-    const updatedMsgs=[...(messages[activeContact.id]||[]),newMsg];
-    setMessages(prev=>({...prev,[activeContact.id]:updatedMsgs}));
+    setMessages(prev=>({...prev,[activeContact.id]:[...(prev[activeContact.id]||[]),newMsg]}));
     setInputText("");
 
     if(activeContact.isAI){
       setIsTyping(true);
-      try {
-        const reply=await askClaude(updatedMsgs);
+      const delay=800+Math.random()*800;
+      setTimeout(()=>{
+        const reply=getSmartReply(text);
         setIsTyping(false);
         setMessages(prev=>({...prev,[activeContact.id]:[...prev[activeContact.id],{id:Date.now()+1,from:"them",text:reply,time:"Now",type:"text"}]}));
-      } catch(e) {
-        setIsTyping(false);
-        setMessages(prev=>({...prev,[activeContact.id]:[...prev[activeContact.id],{id:Date.now()+1,from:"them",text:"Sorry, I'm having trouble connecting right now. Try again in a moment.",time:"Now",type:"text"}]}));
-      }
+      },delay);
     }
   };
 
